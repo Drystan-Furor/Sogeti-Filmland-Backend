@@ -33,3 +33,13 @@ server:
     keyStoreType: PKCS12
     keyAlias: filmland
   ```
+
+```shell
+java -cp ~/.m2/repository/com/h2database/h2/2.3.232/h2-2.3.232.jar org.h2.tools.Server -tcp -tcpAllowOthers -tcpPort 9092 -ifNotExists
+
+```
+
+```shell
+java -cp ~/.m2/repository/com/h2database/h2/2.3.232/h2-2.3.232.jar org.h2.tools.Server -tcp -tcpAllowOthers -tcpPort 9092 -ifNotExists
+
+```

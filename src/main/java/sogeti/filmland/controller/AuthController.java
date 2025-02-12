@@ -27,7 +27,6 @@ public class AuthController {
             return ResponseEntity.status(401).body(new AuthResponse("Login failed", null));
         }
 
-        // BONUS: JWT Token genereren
         String token = jwtUtil.generateToken(authRequest.getEmail());
         return ResponseEntity.ok(new AuthResponse("Login successful", token));
     }

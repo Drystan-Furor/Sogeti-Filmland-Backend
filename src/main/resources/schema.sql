@@ -6,5 +6,3 @@ CREATE TABLE "users" (
                         email VARCHAR(255) UNIQUE NOT NULL,
                         PRIMARY KEY (id)
 );
-
-INSERT INTO USERS (email, password) VALUES ('user@example.com', '$2a$10$HtSvAyCN0d4yZMSZ4bEFwuteGxs5RDrWNV.s/Ls2fFB9EPnMYwRei');

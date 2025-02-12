@@ -24,6 +24,7 @@ spring:
 
   # JPA & Hibernate Configuratie
   jpa:
+    defer-datasource-initialization: true
     show-sql: true
     hibernate:
       ddl-auto: update
@@ -73,6 +74,7 @@ logging:
   pattern:
     console: '%date [%highlight(%-5level)] [%thread] [%cyan(%logger:%line)] -%mdc{RID} %message%n'
   level:
+    org.springframework.jdbc.datasource.init: DEBUG
     root: INFO
     org:
       springframework:
