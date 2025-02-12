@@ -1,21 +1,29 @@
 package sogeti.filmland.security;
 
-import org.springframework.security.core.userdetails.User;
+import jakarta.transaction.Transactional;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import sogeti.filmland.model.User;
+import sogeti.filmland.repository.UserRepository;
 
 import java.util.ArrayList;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
+
+    private final UserRepository userRepository;
+
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Dummy gebruiker (vervang dit later met database lookup)
-        if ("info@filmland-assessment.nl".equals(username)) {
-            return new User("info@filmland-assessment.nl", "{noop}Javaiscool90", new ArrayList<>());
-        }
-        throw new UsernameNotFoundException("Gebruiker niet gevonden");
+    @Transactional
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), new ArrayList<>());
     }
 }
