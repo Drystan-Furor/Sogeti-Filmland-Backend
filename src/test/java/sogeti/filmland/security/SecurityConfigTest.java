@@ -45,7 +45,7 @@ public class SecurityConfigTest {
     void csrfShouldBeDisabledForAuthenticateEndpoint() throws Exception {
         String requestBody = """
         {
-            "email": "user@example.com",
+            "email": "member@example.com",
             "password": "filmland"
         }
     """;

@@ -3,7 +3,7 @@ package sogeti.filmland.service;
 import org.springframework.stereotype.Service;
 import sogeti.filmland.dto.CategoryDTO;
 import sogeti.filmland.dto.SubscriptionDTO;
-import sogeti.filmland.model.User;
+import sogeti.filmland.model.Member;
 import sogeti.filmland.repository.CategoryRepository;
 import sogeti.filmland.repository.SubscriptionRepository;
 
@@ -31,10 +31,10 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
-    public List<SubscriptionDTO> getUserSubscriptions(User user) {
+    public List<SubscriptionDTO> getUserSubscriptions(Member member) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-        return subscriptionRepository.findByUser(user).stream()
+        return subscriptionRepository.findByMember(member).stream()
                 .map(subscription -> new SubscriptionDTO(
                         subscription.getCategory().getName(),
                         subscription.getRemainingContent(),

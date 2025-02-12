@@ -1,14 +1,16 @@
 package sogeti.filmland.controller;
 
+import lombok.val;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import sogeti.filmland.dto.CategoryDTO;
 import sogeti.filmland.dto.SubscriptionDTO;
-import sogeti.filmland.model.User;
-import sogeti.filmland.repository.UserRepository;
+import sogeti.filmland.model.Member;
+import sogeti.filmland.repository.MemberRepository;
 import sogeti.filmland.service.CategoryService;
 
 import java.util.HashMap;
@@ -19,28 +21,23 @@ import java.util.Map;
 @RequestMapping("/categories")
 public class CategoryController {
     private final CategoryService categoryService;
-    private final UserRepository userRepository;
-    public CategoryController(CategoryService categoryService, UserRepository userRepository) {
+    private final MemberRepository memberRepository;
+
+    public CategoryController(CategoryService categoryService, MemberRepository memberRepository) {
         this.categoryService = categoryService;
-        this.userRepository = userRepository;
+        this.memberRepository = memberRepository;
     }
 
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getCategories(@AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated"));
-        }
+    public ResponseEntity<Map<String, Object>> getCategories() {
 
-        System.out.println("UserDetails is present: " + userDetails.getUsername());
+        val memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
 
-        String email = userDetails.getUsername();
-        User user = userRepository.findByEmail(email)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        System.out.println("Resolved user: " + user.getEmail());
-
         List<CategoryDTO> categories = categoryService.getAllCategories();
-        List<SubscriptionDTO> subscriptions = categoryService.getUserSubscriptions(user);
+        List<SubscriptionDTO> subscriptions = categoryService.getUserSubscriptions(member);
 
         Map<String, Object> response = new HashMap<>();
         response.put("availableCategories", categories);
