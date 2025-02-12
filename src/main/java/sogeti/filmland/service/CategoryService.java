@@ -22,22 +22,19 @@ public class CategoryService {
     }
 
     public List<CategoryDTO> getAllCategories() {
-        List<CategoryDTO> categories = categoryRepository.findAll().stream()
+        return categoryRepository.findAll().stream()
                 .map(category -> new CategoryDTO(
                         category.getName(),
                         category.getContentLimit(),
                         category.getPrice()
                 ))
                 .collect(Collectors.toList());
-
-        System.out.println("Available Categories: " + categories);
-        return categories;
     }
 
     public List<SubscriptionDTO> getUserSubscriptions(User user) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-        List<SubscriptionDTO> subscriptions = subscriptionRepository.findByUser(user).stream()
+        return subscriptionRepository.findByUser(user).stream()
                 .map(subscription -> new SubscriptionDTO(
                         subscription.getCategory().getName(),
                         subscription.getRemainingContent(),
@@ -45,6 +42,5 @@ public class CategoryService {
                         subscription.getStartDate().format(formatter)
                 ))
                 .collect(Collectors.toList());
-        return subscriptions;
     }
 }
