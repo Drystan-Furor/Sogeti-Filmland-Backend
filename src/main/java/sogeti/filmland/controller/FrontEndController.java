@@ -1,12 +1,12 @@
 package sogeti.filmland.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 
-@RestController
-@RequestMapping("/")
+@Controller
 public class FrontEndController {
 
+    @GetMapping("/")
     public String showHomePage() {
         return "index";
     }
