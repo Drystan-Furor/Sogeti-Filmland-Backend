@@ -1,13 +1,15 @@
 package sogeti.filmland.controller;
 
+import lombok.val;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import sogeti.filmland.model.ResponseMessage;
 import sogeti.filmland.model.SubscriptionRequest;
 import sogeti.filmland.model.SubscriptionShareRequest;
+import sogeti.filmland.model.Member;
+import sogeti.filmland.repository.MemberRepository;
 import sogeti.filmland.service.SubscriptionService;
 
 @RestController
@@ -15,24 +17,21 @@ import sogeti.filmland.service.SubscriptionService;
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
+    private final MemberRepository memberRepository;
 
-    public SubscriptionController(SubscriptionService subscriptionService) {
+    public SubscriptionController(SubscriptionService subscriptionService, MemberRepository memberRepository) {
         this.subscriptionService = subscriptionService;
+        this.memberRepository = memberRepository;
     }
 
     @PostMapping
-    public ResponseEntity<ResponseMessage> subscribeToCategory(
-            @RequestBody SubscriptionRequest request,
-            @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<ResponseMessage> subscribeToCategory(@RequestBody SubscriptionRequest request) {
+        val memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
 
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ResponseMessage("Authenticatie vereist. Log in en probeer opnieuw."));
-        }
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String email = userDetails.getUsername();
-
-        boolean isSubscribed = subscriptionService.subscribe(email, request.getAvailableCategory());
+        boolean isSubscribed = subscriptionService.subscribe(member.getEmail(), request.getAvailableCategory());
 
         if (isSubscribed) {
             return ResponseEntity.ok(new ResponseMessage("Abonnement succesvol aangemaakt."));
@@ -43,17 +42,22 @@ public class SubscriptionController {
     }
 
     @PostMapping("/share")
-    public ResponseEntity<ResponseMessage> shareSubscription(
-            @RequestBody SubscriptionShareRequest request,
-            @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<ResponseMessage> shareSubscription(@RequestBody SubscriptionShareRequest request) {
+        val memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
 
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ResponseMessage("Authenticatie vereist. Log in en probeer opnieuw."));
-        }
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String ownerEmail = userDetails.getUsername();
-        boolean isShared = subscriptionService.shareSubscription(ownerEmail, request.getCustomer(), request.getSubscribedCategory());
+
+        // Haal de eigenaar op uit de database
+        Member owner = memberRepository.findByEmail(member.getEmail())
+                .orElseThrow(() -> new RuntimeException("Eigenaar niet gevonden."));
+
+        // Haal de klant op uit de database
+        Member customer = memberRepository.findByEmail(request.getCustomer())
+                .orElseThrow(() -> new RuntimeException("Klant niet gevonden."));
+
+        boolean isShared = subscriptionService.shareSubscription(owner.getEmail(), customer.getEmail(), request.getSubscribedCategory());
 
         if (isShared) {
             return ResponseEntity.ok(new ResponseMessage("Abonnement succesvol gedeeld met " + request.getCustomer() + "."));

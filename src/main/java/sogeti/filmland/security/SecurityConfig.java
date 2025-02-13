@@ -36,12 +36,8 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/subscriptions").authenticated()
-
-                        .requestMatchers("/api/auth/authenticate").permitAll()
+                        .requestMatchers("/api/auth/authenticate", "/", "/index.html", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers("/categories").authenticated()
-                        .requestMatchers("/subscriptions").authenticated()
-                        .requestMatchers("/subscriptions/share").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

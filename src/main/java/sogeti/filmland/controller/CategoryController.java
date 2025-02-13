@@ -30,7 +30,6 @@ public class CategoryController {
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> getCategories() {
-
         val memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
 
         Member member = memberRepository.findById(memberId)
