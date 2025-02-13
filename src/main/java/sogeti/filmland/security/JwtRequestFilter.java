@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -44,15 +45,25 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             email = jwtUtil.extractEmail(jwt);
             log.info("Email: [{}]", email);
             if (isNotBlank(email)) {
-                val authToken = memberService.loadUserByUsername(email);
+                val userDetails = memberService.loadUserByUsername(email);
+                log.info("Loaded user details: {}", userDetails);
+                log.info("User authorities: {}", userDetails.getAuthorities());
+                val authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities()
+                );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
                 try {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 } catch (Exception e) {
                     log.error("Error setting authentication", e);
-                }
-            }
+                }            }
+
         }
+        log.info("Checking JWT token: {}", jwt);
+        log.info("Extracted username from JWT: {}", email);
+        log.info("User authenticated: {}", SecurityContextHolder.getContext().getAuthentication());
+
         chain.doFilter(request, response);
     }
 }

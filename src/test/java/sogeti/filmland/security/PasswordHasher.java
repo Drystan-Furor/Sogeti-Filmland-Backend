@@ -4,8 +4,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class PasswordHasher {
     public static void main(String[] args) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String hashedPassword = encoder.encode("filmland");
+        String hashedPassword = encoder.encode("hashedpassword123");
 
-        System.out.println("Gehasht wachtwoord: " + hashedPassword); //$2a$10$HtSvAyCN0d4yZMSZ4bEFwuteGxs5RDrWNV.s/Ls2fFB9EPnMYwRei
+        System.out.println("Gehasht wachtwoord: " + hashedPassword); //$2a$10$dzmLYXMupzAk/gPmLigyXevJaPbtxlwbwID0NeWKOt3oYy3X8HCd2
     }
 }

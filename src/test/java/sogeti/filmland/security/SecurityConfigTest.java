@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -56,5 +57,115 @@ public class SecurityConfigTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void filmlandAssessmentExists() throws Exception {
+        String requestBody = """
+        {
+            "email": "info@filmland-assessment.nl",
+            "password": "hashedpassword123"
+        }
+    """;
 
+        mockMvc.perform(post("/api/auth/authenticate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldSubscribeSuccessfully() throws Exception {
+        final String VALID_JWT_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbmZvQGZpbG1sYW5kLWFzc2Vzc21lbnQubmwiLCJpYXQiOjE3Mzk0NDA0NTcsImV4cCI6MTczOTQ0NDA1N30.jK18p_Xms4zzvRwBvaOv09XqoVAJWPTZtc31akRibQA";
+        String requestBody = """
+        {
+            "email": "info@filmland-assessment.nl",
+            "availableCategory": "Dutch Films"
+        }
+        """;
+
+        mockMvc.perform(post("/subscriptions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", VALID_JWT_TOKEN)
+                        .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("Abonnement succesvol aangemaakt."));
+    }
+
+    @Test
+    void shouldReturnBadRequestIfAlreadySubscribed() throws Exception {
+        final String VALID_JWT_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbmZvQGZpbG1sYW5kLWFzc2Vzc21lbnQubmwiLCJpYXQiOjE3Mzk0NDA0NTcsImV4cCI6MTczOTQ0NDA1N30.jK18p_Xms4zzvRwBvaOv09XqoVAJWPTZtc31akRibQA";
+        String requestBody = """
+        {
+            "email": "info@filmland-assessment.nl",
+            "availableCategory": "Dutch Films"
+        }
+        """;
+
+        // First subscription should succeed
+        mockMvc.perform(post("/subscriptions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", VALID_JWT_TOKEN)
+                        .content(requestBody))
+                .andExpect(status().isOk());
+
+        // Second subscription should fail (already subscribed)
+        mockMvc.perform(post("/subscriptions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", VALID_JWT_TOKEN)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("U bent al geabonneerd op deze categorie."));
+    }
+
+    @Test
+    void shouldReturnBadRequestIfUserNotFound() throws Exception {
+        String requestBody = """
+        {
+            "email": "nonexistent@example.com",
+            "availableCategory": "Dutch Films"
+        }
+        """;
+
+        mockMvc.perform(post("/subscriptions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer VALID_JWT_TOKEN")
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Member not found with email: nonexistent@example.com"));
+    }
+
+    @Test
+    void shouldReturnBadRequestIfCategoryNotFound() throws Exception {
+        String requestBody = """
+        {
+            "email": "info@filmland-assessment.nl",
+            "availableCategory": "Unknown Category"
+        }
+        """;
+
+        mockMvc.perform(post("/subscriptions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer VALID_JWT_TOKEN")
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Category not found with name: Unknown Category"));
+    }
+
+    @Test
+    void shouldReturnForbiddenIfUnauthorized() throws Exception {
+        String requestBody = """
+        {
+            "email": "info@filmland-assessment.nl",
+            "availableCategory": "Dutch Films"
+        }
+        """;
+
+        mockMvc.perform(post("/subscriptions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isForbidden()); // 403 expected when no JWT token is provided
+    }
 }
+
+
+
+
