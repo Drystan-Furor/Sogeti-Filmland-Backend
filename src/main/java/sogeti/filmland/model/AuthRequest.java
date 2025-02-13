@@ -1,4 +1,4 @@
-package sogeti.filmland.dto;
+package sogeti.filmland.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

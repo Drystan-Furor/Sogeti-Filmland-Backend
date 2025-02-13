@@ -5,8 +5,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
-import sogeti.filmland.dto.AuthRequest;
-import sogeti.filmland.dto.AuthResponse;
+import sogeti.filmland.model.AuthRequest;
+import sogeti.filmland.model.AuthResponse;
 import sogeti.filmland.security.JwtUtil;
 import sogeti.filmland.service.AuthService;
 

@@ -16,4 +16,6 @@ public class Category {
     private String name;
     private double price;
     private int contentLimit;
+
+
 }

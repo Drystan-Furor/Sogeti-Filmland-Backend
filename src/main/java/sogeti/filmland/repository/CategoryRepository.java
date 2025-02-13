@@ -8,9 +8,12 @@ import sogeti.filmland.model.Category;
 import sogeti.filmland.model.Member;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
     @Query("SELECT c FROM Category c WHERE c NOT IN (SELECT s.category FROM Subscription s WHERE s.member = :member)")
     List<Category> findByNotMember(@Param("member") Member member);
+
+    Optional<Category> findByName(String name);
 }
