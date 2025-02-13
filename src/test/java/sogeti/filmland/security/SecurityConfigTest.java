@@ -33,6 +33,8 @@ public class SecurityConfigTest {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Test
     void contextLoads() {
@@ -76,7 +78,7 @@ public class SecurityConfigTest {
 
     @Test
     void shouldSubscribeSuccessfully() throws Exception {
-        final String VALID_JWT_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbmZvQGZpbG1sYW5kLWFzc2Vzc21lbnQubmwiLCJpYXQiOjE3Mzk0NDI3NzQsImV4cCI6MTczOTQ0NjM3NH0.TGqD1jrUdxEkTVSMw0A8uxCldCFB0Bo3Ge-VKzlDrXU";
+        final String token = jwtUtil.generateToken("info@filmland-assessment.nl");
         String requestBody = """
         {
             "email": "info@filmland-assessment.nl",
@@ -86,7 +88,7 @@ public class SecurityConfigTest {
 
         mockMvc.perform(post("/subscriptions")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", VALID_JWT_TOKEN)
+                        .header("Authorization", "Bearer %s".formatted(token))
                         .content(requestBody))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("Abonnement succesvol aangemaakt."));
@@ -94,7 +96,7 @@ public class SecurityConfigTest {
 
     @Test
     void shouldReturnBadRequestIfAlreadySubscribed() throws Exception {
-        final String VALID_JWT_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbmZvQGZpbG1sYW5kLWFzc2Vzc21lbnQubmwiLCJpYXQiOjE3Mzk0NDA0NTcsImV4cCI6MTczOTQ0NDA1N30.jK18p_Xms4zzvRwBvaOv09XqoVAJWPTZtc31akRibQA";
+        final String token = jwtUtil.generateToken("info@filmland-assessment.nl");
         String requestBody = """
         {
             "email": "info@filmland-assessment.nl",
@@ -105,14 +107,14 @@ public class SecurityConfigTest {
         // First subscription should succeed
         mockMvc.perform(post("/subscriptions")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", VALID_JWT_TOKEN)
+                        .header("Authorization", "Bearer %s".formatted(token))
                         .content(requestBody))
                 .andExpect(status().isOk());
 
         // Second subscription should fail (already subscribed)
         mockMvc.perform(post("/subscriptions")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", VALID_JWT_TOKEN)
+                        .header("Authorization", "Bearer %s".formatted(token))
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("U bent al geabonneerd op deze categorie."));
@@ -120,6 +122,8 @@ public class SecurityConfigTest {
 
     @Test
     void shouldReturnBadRequestIfUserNotFound() throws Exception {
+        final String token = jwtUtil.generateToken("info@filmland-assessment.nl");
+
         String requestBody = """
         {
             "email": "nonexistent@example.com",
@@ -129,7 +133,7 @@ public class SecurityConfigTest {
 
         mockMvc.perform(post("/subscriptions")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer VALID_JWT_TOKEN")
+                        .header("Authorization", "Bearer %s".formatted(token))
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Member not found with email: nonexistent@example.com"));
@@ -137,6 +141,8 @@ public class SecurityConfigTest {
 
     @Test
     void shouldReturnBadRequestIfCategoryNotFound() throws Exception {
+        final String token = jwtUtil.generateToken("info@filmland-assessment.nl");
+
         String requestBody = """
         {
             "email": "info@filmland-assessment.nl",
@@ -146,7 +152,7 @@ public class SecurityConfigTest {
 
         mockMvc.perform(post("/subscriptions")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer VALID_JWT_TOKEN")
+                        .header("Authorization", "Bearer %s".formatted(token))
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Category not found with name: Unknown Category"));
