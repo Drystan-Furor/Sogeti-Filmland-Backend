@@ -36,7 +36,7 @@ public class CategoryController {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        List<CategoryDTO> categories = categoryService.getAllCategories();
+        List<CategoryDTO> categories = categoryService.getCategories(member);
         List<SubscriptionDTO> subscriptions = categoryService.getUserSubscriptions(member);
 
         Map<String, Object> response = new HashMap<>();

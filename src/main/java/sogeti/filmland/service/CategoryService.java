@@ -21,8 +21,8 @@ public class CategoryService {
         this.subscriptionRepository = subscriptionRepository;
     }
 
-    public List<CategoryDTO> getAllCategories() {
-        return categoryRepository.findAll().stream()
+    public List<CategoryDTO> getCategories(Member member) {
+        return categoryRepository.findByNotMember(member).stream()
                 .map(category -> new CategoryDTO(
                         category.getName(),
                         category.getContentLimit(),
@@ -30,6 +30,7 @@ public class CategoryService {
                 ))
                 .collect(Collectors.toList());
     }
+
 
     public List<SubscriptionDTO> getUserSubscriptions(Member member) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
