@@ -22,6 +22,7 @@ public class MemberService {
         this.memberRepository = memberRepository;
     }
 
+
     @Transactional(readOnly = true)
     public UsernamePasswordAuthenticationToken loadUserByUsername(String email) throws UsernameNotFoundException {
         Member member = memberRepository.findByEmail(email)

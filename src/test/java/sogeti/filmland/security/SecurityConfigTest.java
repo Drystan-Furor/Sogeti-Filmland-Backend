@@ -1,5 +1,6 @@
 package sogeti.filmland.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,6 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(SecurityConfig.class)
@@ -74,7 +76,7 @@ public class SecurityConfigTest {
 
     @Test
     void shouldSubscribeSuccessfully() throws Exception {
-        final String VALID_JWT_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbmZvQGZpbG1sYW5kLWFzc2Vzc21lbnQubmwiLCJpYXQiOjE3Mzk0NDA0NTcsImV4cCI6MTczOTQ0NDA1N30.jK18p_Xms4zzvRwBvaOv09XqoVAJWPTZtc31akRibQA";
+        final String VALID_JWT_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbmZvQGZpbG1sYW5kLWFzc2Vzc21lbnQubmwiLCJpYXQiOjE3Mzk0NDI3NzQsImV4cCI6MTczOTQ0NjM3NH0.TGqD1jrUdxEkTVSMw0A8uxCldCFB0Bo3Ge-VKzlDrXU";
         String requestBody = """
         {
             "email": "info@filmland-assessment.nl",
