@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/categories").authenticated()
                         .requestMatchers("/subscriptions").authenticated()
+                        .requestMatchers("/subscriptions/share").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

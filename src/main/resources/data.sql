@@ -11,3 +11,12 @@ INSERT INTO categories (id, name, content_limit, price) VALUES (3, 'Internationa
 -- Voeg een abonnement toe met expliciete user_id en category_id
 INSERT INTO subscriptions (id, remaining_content, start_date, category_id, member_id)
 VALUES (1, 5, '2018-01-01', 3, 1);
+
+
+-- Voeg een extra abonnement toe voor testen
+INSERT INTO subscriptions (id, remaining_content, start_date, category_id, member_id)
+VALUES (2, 10, '2025-02-13', 1, 2);
+
+-- Voeg een gedeeld abonnement toe
+INSERT INTO subscriptions (id, remaining_content, start_date, shared_with_email, shared_start_date, category_id, member_id)
+VALUES (3, 5, '2025-02-13', 'client@filmland-assessment.nl', '2025-02-14', 1, 2);

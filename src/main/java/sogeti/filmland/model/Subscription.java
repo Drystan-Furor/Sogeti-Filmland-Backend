@@ -25,4 +25,10 @@ public class Subscription {
 
     private int remainingContent;
     private LocalDate startDate;
+
+    @Column(name = "shared_with_email")
+    private String sharedWithEmail;
+
+    @Column(name = "shared_start_date")
+    private LocalDate sharedStartDate;
 }

@@ -2,6 +2,8 @@ package sogeti.filmland.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import sogeti.filmland.model.Category;
 import sogeti.filmland.model.Member;
 import sogeti.filmland.model.Subscription;
@@ -57,6 +59,44 @@ public class SubscriptionService {
         subscription.setRemainingContent(category.getContentLimit());
 
         subscriptionRepository.save(subscription);
+        return true;
+    }
+
+    @Transactional
+    public boolean shareSubscription(String ownerEmail, String sharedEmail, String categoryName) {
+        log.warn("Delen van abonnement: {} -> {}", ownerEmail, sharedEmail);
+
+        Member owner = memberRepository.findByEmail(ownerEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Eigenaar niet gevonden met email: " + ownerEmail));
+
+        Member sharedMember = memberRepository.findByEmail(sharedEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Ontvanger niet gevonden met email: " + sharedEmail));
+
+        Category category = categoryRepository.findByName(categoryName)
+                .orElseThrow(() -> new IllegalArgumentException("Categorie niet gevonden: " + categoryName));
+
+        Subscription ownerSubscription = subscriptionRepository.findByMemberAndCategory(owner, category)
+                .orElseThrow(() -> new IllegalArgumentException("Abonnement niet gevonden voor de eigenaar"));
+
+        if (subscriptionRepository.findByMemberAndCategory(sharedMember, category).isPresent()) {
+            log.warn("Gebruiker {} is al geabonneerd op {}", sharedEmail, categoryName);
+            return false;
+        }
+
+        // Verdeel de resterende content
+        int newRemainingContent = ownerSubscription.getRemainingContent() / 2;
+        ownerSubscription.setRemainingContent(newRemainingContent);
+
+        Subscription sharedSubscription = new Subscription();
+        sharedSubscription.setMember(sharedMember);
+        sharedSubscription.setCategory(category);
+        sharedSubscription.setStartDate(LocalDate.now());
+        sharedSubscription.setRemainingContent(newRemainingContent);
+
+        subscriptionRepository.save(ownerSubscription);
+        subscriptionRepository.save(sharedSubscription);
+
+        log.info("Abonnement succesvol gedeeld tussen {} en {}", ownerEmail, sharedEmail);
         return true;
     }
 }
