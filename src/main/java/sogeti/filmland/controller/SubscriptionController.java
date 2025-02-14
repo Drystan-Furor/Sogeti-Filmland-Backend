@@ -48,16 +48,10 @@ public class SubscriptionController {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-
-        // Haal de eigenaar op uit de database
-        Member owner = memberRepository.findByEmail(member.getEmail())
-                .orElseThrow(() -> new RuntimeException("Eigenaar niet gevonden."));
-
-        // Haal de klant op uit de database
         Member customer = memberRepository.findByEmail(request.getCustomer())
                 .orElseThrow(() -> new RuntimeException("Klant niet gevonden."));
 
-        boolean isShared = subscriptionService.shareSubscription(owner.getEmail(), customer.getEmail(), request.getSubscribedCategory());
+        boolean isShared = subscriptionService.shareSubscription(member.getEmail(), customer.getEmail(), request.getSubscribedCategory());
 
         if (isShared) {
             return ResponseEntity.ok(new ResponseMessage("Abonnement succesvol gedeeld met " + request.getCustomer() + "."));
